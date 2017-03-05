@@ -156,8 +156,9 @@ signed-{{ zone }}:
 {% endif %}
 
 {% if zone_data['auto-dnssec'] is defined and zone_data['auto-dnssec'] == 'maintain' -%}
-{{ map.key_directory }}:
+key_directory:
   file.directory:
+    - name: {{ map.key_directory }}
     - user: root
     - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
     - mode: 775
@@ -171,9 +172,8 @@ signed-{{ zone }}:
     - cwd: {{ map.key_directory }}
     - name: dnssec-keygen -a RSASHA256 -b 2048 -3 -fk -r /dev/urandom {{zone}}
     - unless: cat {{ map.key_directory }}/{{zone}}*.key | grep 'key-signing key' > /dev/null
-    - prereq:
-      - file: zones-{{ zone }}
-      - file: {{ map.key_directory }}
+    - require:
+      - file: key_directory
     - watch_in:
       - service: bind
 
@@ -182,9 +182,8 @@ signed-{{ zone }}:
     - cwd: {{ map.key_directory }}
     - name: dnssec-keygen -a RSASHA256 -b 2048 -3 -r /dev/urandom {{zone}}
     - unless: cat {{ map.key_directory }}/{{zone}}*.key | grep 'zone-signing key' > /dev/null
-    - prereq:
-      - file: zones-{{ zone }}
-      - file: {{ map.key_directory }}
+    - require:
+      - file: key_directory
     - watch_in:
       - service: bind
 
