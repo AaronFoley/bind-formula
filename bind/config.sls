@@ -192,7 +192,7 @@ key_directory:
 key_directory-perms:
   cmd.run:
     - cwd: {{ map.key_directory }}
-    - name: chmod 644 *.key && chmod 640 *.private
+    - name: chmod 644 *.key && chmod 640 *.private && chown: root:{{ salt['pillar.get']('bind:config:group', map.group) }} *
 
 {% endif %}
 
