@@ -190,13 +190,9 @@ key_directory:
       - file: key_directory-perms
 
 key_directory-perms:
-  file.directory:
-    - name: {{ map.key_directory }}
-    - user: root
-    - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
-    - recurse:
-      - user
-      - group
+  cmd.run:
+    - cwd: {{ map.key_directory }}
+    - name: chmod 644 *.key && chmod 640 *.private
 
 {% endif %}
 
