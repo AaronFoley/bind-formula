@@ -171,7 +171,7 @@ key_directory:
   cmd.run:
     - cwd: {{ map.key_directory }}
     - name: dnssec-keygen -a RSASHA256 -b 2048 -3 -fk -r /dev/urandom {{zone}}
-    - unless: cat {{ map.key_directory }}/{{zone}}*.key | grep 'key-signing key' > /dev/null
+    - unless: cat {{ map.key_directory }}/K{{zone}}*.key | grep 'key-signing key' > /dev/null
     - require:
       - file: key_directory
     - watch_in:
@@ -181,7 +181,7 @@ key_directory:
   cmd.run:
     - cwd: {{ map.key_directory }}
     - name: dnssec-keygen -a RSASHA256 -b 2048 -3 -r /dev/urandom {{zone}}
-    - unless: cat {{ map.key_directory }}/{{zone}}*.key | grep 'zone-signing key' > /dev/null
+    - unless: cat {{ map.key_directory }}/K{{zone}}*.key | grep 'zone-signing key' > /dev/null
     - require:
       - file: key_directory
     - watch_in:
