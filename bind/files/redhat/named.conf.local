@@ -31,6 +31,12 @@ zone "{{ key }}" {
     {% else -%}
   notify no;
     {%- endif -%}
+    {% if 'inline-signing' in args -%}
+  inline-signing {{ args['inline-signing'] }};
+    {%- endif -%}
+    {% if 'auto-dnssec' in args -%}
+  auto-dnssec {{ args['auto-dnssec'] }};
+    {%- endif -%}
   {% else -%}
   notify no;
   masters { {{ masters }} };
