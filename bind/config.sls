@@ -176,6 +176,7 @@ key_directory:
       - file: key_directory
     - watch_in:
       - service: bind
+      - file: key_directory-perms
 
 {{zone}}-zsk:
   cmd.run:
@@ -186,6 +187,16 @@ key_directory:
       - file: key_directory
     - watch_in:
       - service: bind
+      - file: key_directory-perms
+
+key_directory-perms:
+  file.directory:
+    - name: {{ map.key_directory }}
+    - user: root
+    - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
+    - recurse:
+      - user
+      - group
 
 {% endif %}
 
