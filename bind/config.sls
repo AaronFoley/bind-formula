@@ -230,6 +230,7 @@ signed-{{ zone }}:
 
 {{zone}}-zsk-rollover:
   cron.present:
+    - identifier: {{zone}}-zsk-rollover
     - name: /usr/local/bin/zsk_rollover.sh {{zone}} {{ zone_data['zsk-rollover']['inactive'] }} {{ zone_data['zsk-rollover']['deleted'] }}
     - user: {{ salt['pillar.get']('bind:config:user', map.user) }}
     {% if zone_data['zsk-rollover']['minute'] is defined %}
