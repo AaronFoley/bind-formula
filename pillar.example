@@ -77,6 +77,18 @@ bind:
         - 10.9.8.8
         - 10.9.8.9
 
+    dnssec.domain.com:                            # Example of a domain with DNSSEC and in-line signing
+      type: master
+      auto-dnssec: maintain                       # BIND will automatically sign the domain
+      inline-signing: yes                         # Zone file will be left unsigned, and signed version is loaded from disk
+      enable-nsec3: True                          # Set bind to use NSEC3
+      create-keys: True                           # Whether to create KSK and ZSK's for this domain
+      zsk-rollover:                               # Setup ZSK rollover for this domain via cron
+        enabled: True                               # whether it is enabled
+        month: "*/3"                                # Cron run time - minute, hour, daymonth, month, dayweek are supported
+        inactive: "+1mo"                            # Time until the previous ZSK is marked Inactive
+        deleted: "+2mo"                             # Time until the previous ZSK is removed
+
   configured_views:
     myview1:                                      # First (and only) view
       match_clients:                              # The clients we wish to match

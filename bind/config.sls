@@ -36,6 +36,37 @@ named_directory:
     - require:
       - pkg: bind
 
+{% if grains['os_family'] == 'RedHat' %}
+
+key_directory:
+  file.directory:
+    - name: {{ map.key_directory }}
+    - user: root
+    - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
+    - mode: 775
+    - require:
+      - pkg: bind
+    - watch_in:
+      - service: bind
+
+key_directory_perms:
+  cmd.run:
+    - cwd: {{ map.key_directory }}
+    - name: chmod 644 *.key && chmod 640 *.private && chown: root:{{ salt['pillar.get']('bind:config:group', map.group) }} *
+
+zsk_rollover_script:
+  file.managed:
+    - source: 'salt://files/common/zsk_rollover.sh'
+    - name: /usr/local/bin/zsk_rollover.sh
+    - user: {{ salt['pillar.get']('bind:config:user', map.user) }}
+    - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
+    - mode: 755
+    - template: jinja
+    - context:
+        map: {{ map }}
+
+{% endif %}
+
 bind_config:
   file.managed:
     - name: {{ map.config }}
@@ -155,17 +186,7 @@ signed-{{ zone }}:
       - file: zones-{{ zone }}
 {% endif %}
 
-{% if zone_data['auto-dnssec'] is defined and zone_data['auto-dnssec'] == 'maintain' -%}
-key_directory:
-  file.directory:
-    - name: {{ map.key_directory }}
-    - user: root
-    - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
-    - mode: 775
-    - require:
-      - pkg: bind
-    - watch_in:
-      - service: bind
+{% if zone_data['create-keys'] is defined and zone_data['create-keys'] -%}
 
 {{zone}}-ksk:
   cmd.run:
@@ -176,7 +197,7 @@ key_directory:
       - file: key_directory
     - watch_in:
       - service: bind
-      - file: key_directory-perms
+      - file: key_directory_perms
 
 {{zone}}-zsk:
   cmd.run:
@@ -187,12 +208,35 @@ key_directory:
       - file: key_directory
     - watch_in:
       - service: bind
-      - file: key_directory-perms
+      - file: key_directory_perms
+{% endif %}
 
-key_directory-perms:
+{% if zone_data['enable-nsec3'] is defined and zone_data['enable-nsec3'] -%}
+
+{{zone}}-nsec3:
   cmd.run:
-    - cwd: {{ map.key_directory }}
-    - name: chmod 644 *.key && chmod 640 *.private && chown: root:{{ salt['pillar.get']('bind:config:group', map.group) }} *
+    - name: rndc signing -nsec3param 1 0 100 $(head -c 512 /dev/urandom | sha1sum | cut -b 1-16) {{zone}}
+    - unless: named-compilezone -D -f raw -o - {{ map.named_directory }}/{{ file }} {{ map.named_directory }}/{{ file }}.signed
+    - require:
+      - file: key_directory
+    - prereq:
+      - service: bind
+
+{% endif %}
+
+{% if zone_data['zsk-rollover'] is defined and zone_data['zsk-rollover']['enabled'] -%}
+
+{{zone}}-zsk-rollover:
+  cron.present:
+    - name: /usr/local/bin/zsk_rollover.sh {{zone}} {{ zone_data['zsk-rollover']['inactive'] }} {{ zone_data['zsk-rollover']['deleted'] }}
+    - user: {{ salt['pillar.get']('bind:config:user', map.user) }}
+    - minute: {{ zone_data['zsk-rollover']['minute'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
+    - hour: {{ zone_data['zsk-rollover']['hour'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
+    - daymonth: {{ zone_data['zsk-rollover']['daymonth'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
+    - month: {{ zone_data['zsk-rollover']['month'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
+    - dayweek: {{ zone_data['zsk-rollover']['dayweek'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
+    - require:
+      - file: zsk_rollover_script
 
 {% endif %}
 
