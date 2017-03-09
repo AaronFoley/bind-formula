@@ -33,6 +33,7 @@ bind:
       algorithm: 'RSASHA256'
       nsec3: True
       randomdev: '/dev/urandom'
+      size: 2048
 
 # Debian and FreeBSD based systems
     default_zones: True                           # If set to True, the default-zones configuration
