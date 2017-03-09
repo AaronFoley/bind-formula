@@ -56,7 +56,7 @@ key_directory_perms:
 
 zsk_rollover_script:
   file.managed:
-    - source: 'salt://files/common/zsk_rollover.sh'
+    - source: 'salt://bind/files/common/zsk_rollover.sh'
     - name: /usr/local/bin/zsk_rollover.sh
     - user: {{ salt['pillar.get']('bind:config:user', map.user) }}
     - group: {{ salt['pillar.get']('bind:config:group', map.group) }}
