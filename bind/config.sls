@@ -188,7 +188,11 @@ signed-{{ zone }}:
 
 {% if zone_data['create-keys'] is defined and zone_data['create-keys'] -%}
 
-{%- set keygen_options = salt['pillar.get']("bind:config:dnssec_keygen_options","") %}
+{%- set keygen_options = '-a ' + salt['pillar.get']("bind:config:keygen_options:algorithm","RSASHA256") %}
+{%- set keygen_options = keygen_options + ' -r ' + salt['pillar.get']("bind:config:keygen_options:randomdev","/dev/random") %}
+{% if salt['pillar.get']("bind:config:keygen_options:nsec3",False) %}
+{%- set keygen_options = keygen_options + ' -3 ' %}
+{% endif %}
 
 {{zone}}-ksk:
   cmd.run:

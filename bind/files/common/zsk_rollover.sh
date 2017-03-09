@@ -49,7 +49,12 @@ echo "Found key: $ACTIVEKEY"
 
 /usr/sbin/dnssec-settime -I $INACTIVE -D $DELETE $ACTIVEKEY
 
-KEYNAME="$(/usr/sbin/dnssec-keygen {{ salt['pillar.get']('bind:config:dnssec_keygen_options',"") }} -K $KEYDIR -S $ACTIVEKEY -i $INACTIVE)"
+{%- set keygen_options = ' -r ' + salt['pillar.get']("bind:config:keygen_options:randomdev","/dev/random") %}
+{%- if salt['pillar.get']("bind:config:keygen_options:nsec3",False) %}
+{%- set keygen_options = keygen_options + ' -3 ' %}
+{%- endif %}
+
+KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -i $INACTIVE)"
 
 echo "Generated key: ${KEYNAME}"
 
