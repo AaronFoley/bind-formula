@@ -52,7 +52,7 @@ key_directory:
 key_directory_perms:
   cmd.run:
     - cwd: {{ map.key_directory }}
-    - name: chmod 644 *.key && chmod 640 *.private && chown: root:{{ salt['pillar.get']('bind:config:group', map.group) }} *
+    - name: chmod 644 *.key && chmod 640 *.private && chown root:{{ salt['pillar.get']('bind:config:group', map.group) }} *
 
 zsk_rollover_script:
   file.managed:
