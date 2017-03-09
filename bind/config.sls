@@ -188,10 +188,12 @@ signed-{{ zone }}:
 
 {% if zone_data['create-keys'] is defined and zone_data['create-keys'] -%}
 
+{%- set keygen_options = salt['pillar.get']("bind:config:dnssec_keygen_options","") %}
+
 {{zone}}-ksk:
   cmd.run:
     - cwd: {{ map.key_directory }}
-    - name: dnssec-keygen -a RSASHA256 -b 2048 -3 -fk -r /dev/urandom {{zone}}
+    - name: dnssec-keygen {{ keygen_options }} -fk {{zone}}
     - unless: cat {{ map.key_directory }}/K{{zone}}*.key | grep 'key-signing key' > /dev/null
     - require:
       - file: key_directory
@@ -202,7 +204,7 @@ signed-{{ zone }}:
 {{zone}}-zsk:
   cmd.run:
     - cwd: {{ map.key_directory }}
-    - name: dnssec-keygen -a RSASHA256 -b 2048 -3 -r /dev/urandom {{zone}}
+    - name: dnssec-keygen {{ keygen_options }} {{zone}}
     - unless: cat {{ map.key_directory }}/K{{zone}}*.key | grep 'zone-signing key' > /dev/null
     - require:
       - file: key_directory
@@ -215,7 +217,7 @@ signed-{{ zone }}:
 
 {{zone}}-nsec3:
   cmd.run:
-    - name: rndc signing -nsec3param 1 0 100 $(head -c 512 /dev/urandom | sha1sum | cut -b 1-16) {{zone}}
+    - name: rndc signing -nsec3param {{ zone_data['nsec-options'] }} {{ salt['random.get_str'](16) }} {{zone}}
     - unless: named-compilezone -D -f raw -o - {{ map.named_directory }}/{{ file }} {{ map.named_directory }}/{{ file }}.signed
     - require:
       - file: key_directory

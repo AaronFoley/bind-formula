@@ -49,9 +49,11 @@ echo "Found key: $ACTIVEKEY"
 
 /usr/sbin/dnssec-settime -I $INACTIVE -D $DELETE $ACTIVEKEY
 
-KEYNAME="$(/usr/sbin/dnssec-keygen -K $KEYDIR -S $ACTIVEKEY -i $INACTIVE)"
+KEYNAME="$(/usr/sbin/dnssec-keygen {{ salt['pillar.get']('bind:config:dnssec_keygen_options',"") }} -K $KEYDIR -S $ACTIVEKEY -i $INACTIVE)"
 
 echo "Generated key: ${KEYNAME}"
 
 echo "Setting owner on generated key"
+chmod 644 "$KEYDIR/$KEYNAME.*.key"
+chmod 640 "$KEYDIR/$KEYNAME.*.private"*
 chown "{{ salt['pillar.get']('bind:config:user', map.user) }}:{{ salt['pillar.get']('bind:config:group', map.group) }}" "$KEYDIR/$KEYNAME.*"

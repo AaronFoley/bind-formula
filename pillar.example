@@ -29,6 +29,8 @@ bind:
                                                   # (ipv4: 4, ipv6: 6). Omitting this reverts to
                                                   # binds default of both.
 
+    dnssec_keygen_options: "-a RSASHA256 -b 2048 -3 -r /dev/urandom"
+
 # Debian and FreeBSD based systems
     default_zones: True                           # If set to True, the default-zones configuration
                                                   # will be enabled. Defaults to False.
@@ -82,6 +84,7 @@ bind:
       auto-dnssec: maintain                       # BIND will automatically sign the domain
       inline-signing: yes                         # Zone file will be left unsigned, and signed version is loaded from disk
       enable-nsec3: True                          # Set bind to use NSEC3
+      nsec-options: "1 0 20"                      # NSEC3 <hash type> <opt-out> <iterations>
       create-keys: True                           # Whether to create KSK and ZSK's for this domain
       zsk-rollover:                               # Setup ZSK rollover for this domain via cron
         enabled: True                               # whether it is enabled
