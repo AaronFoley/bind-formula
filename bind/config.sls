@@ -230,11 +230,21 @@ signed-{{ zone }}:
   cron.present:
     - name: /usr/local/bin/zsk_rollover.sh {{zone}} {{ zone_data['zsk-rollover']['inactive'] }} {{ zone_data['zsk-rollover']['deleted'] }}
     - user: {{ salt['pillar.get']('bind:config:user', map.user) }}
-    - minute: {{ zone_data['zsk-rollover']['minute'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
-    - hour: {{ zone_data['zsk-rollover']['hour'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
-    - daymonth: {{ zone_data['zsk-rollover']['daymonth'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
-    - month: {{ zone_data['zsk-rollover']['month'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
-    - dayweek: {{ zone_data['zsk-rollover']['dayweek'] if zone_data['zsk-rollover']['minute'] is defined else '*' }}
+    {% if zone_data['zsk-rollover']['minute'] is defined %}
+    - minute: {{ zone_data['zsk-rollover']['minute'] }}
+    {% endif %}
+    {% if zone_data['zsk-rollover']['hour'] is defined %}
+    - hour: {{ zone_data['zsk-rollover']['hour'] }}
+    {% endif %}
+    {% if zone_data['zsk-rollover']['daymonth'] is defined %}
+    - daymonth: {{ zone_data['zsk-rollover']['daymonth'] }}
+    {% endif %}
+    {% if zone_data['zsk-rollover']['month'] is defined %}
+    - month: {{ zone_data['zsk-rollover']['month'] }}
+    {% endif %}
+    {% if zone_data['zsk-rollover']['dayweek'] is defined %}
+    - dayweek: {{ zone_data['zsk-rollover']['dayweek'] }}
+    {% endif %}
     - require:
       - file: zsk_rollover_script
 
