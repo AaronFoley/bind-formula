@@ -51,7 +51,7 @@ echo "Found key: $ACTIVEKEY"
 
 {%- set keygen_options = '-r ' + salt['pillar.get']("bind:config:keygen_options:randomdev","/dev/random") %}
 
-KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -i $INACTIVE)"
+KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -i 0)"
 
 echo "Generated key: ${KEYNAME}"
 
