@@ -204,9 +204,10 @@ signed-{{ zone }}:
     - unless: cat {{ map.key_directory }}/K{{zone}}*.key | grep 'key-signing key' > /dev/null
     - require:
       - file: key_directory
+    - require_in:
+      - file: key_directory_perms
     - watch_in:
       - service: bind_restart
-      - file: key_directory_perms
 
 {{zone}}-zsk:
   cmd.run:
@@ -215,9 +216,10 @@ signed-{{ zone }}:
     - unless: cat {{ map.key_directory }}/K{{zone}}*.key | grep 'zone-signing key' > /dev/null
     - require:
       - file: key_directory
+    - require_in:
+      - file: key_directory_perms
     - watch_in:
       - service: bind_restart
-      - file: key_directory_perms
 {% endif %}
 
 {% if zone_data['enable-nsec3'] is defined and zone_data['enable-nsec3'] -%}
