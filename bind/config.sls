@@ -203,7 +203,7 @@ signed-{{ zone }}:
     - require:
       - file: key_directory
     - watch_in:
-      - service: bind
+      - service: bind_restart
       - file: key_directory_perms
 
 {{zone}}-zsk:
@@ -214,7 +214,7 @@ signed-{{ zone }}:
     - require:
       - file: key_directory
     - watch_in:
-      - service: bind
+      - service: bind_restart
       - file: key_directory_perms
 {% endif %}
 
