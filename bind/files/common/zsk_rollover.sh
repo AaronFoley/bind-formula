@@ -56,6 +56,6 @@ KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY
 echo "Generated key: ${KEYNAME}"
 
 echo "Setting owner on generated key"
-chmod 644 "$KEYDIR/$KEYNAME.key"
-chmod 640 "$KEYDIR/$KEYNAME.private"
+chmod 644 $KEYDIR/*.key
+chmod 640 $KEYDIR/*.private
 chown "{{ salt['pillar.get']('bind:config:user', map.user) }}:{{ salt['pillar.get']('bind:config:group', map.group) }}" $KEYDIR/$KEYNAME.*
