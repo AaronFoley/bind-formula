@@ -46,8 +46,6 @@ key_directory:
     - mode: 775
     - require:
       - pkg: bind
-    - watch_in:
-      - service: bind
 
 key_directory_perms:
   cmd.run:
@@ -205,7 +203,7 @@ signed-{{ zone }}:
     - require:
       - file: key_directory
     - require_in:
-      - file: key_directory_perms
+      - cmd: key_directory_perms
     - watch_in:
       - service: bind_restart
 
@@ -217,7 +215,7 @@ signed-{{ zone }}:
     - require:
       - file: key_directory
     - require_in:
-      - file: key_directory_perms
+      - cmd: key_directory_perms
     - watch_in:
       - service: bind_restart
 {% endif %}
