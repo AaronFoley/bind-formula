@@ -8,6 +8,7 @@ KEYDIR="{{ map.key_directory }}"
 ZONE="$1"
 INACTIVE="$2"
 DELETE="$3"
+PREPUBLISH=
 
 if [ $# -eq 0 ]
 then
@@ -51,11 +52,11 @@ echo "Found key: $ACTIVEKEY"
 
 {%- set keygen_options = '-r ' + salt['pillar.get']("bind:config:keygen_options:randomdev","/dev/random") %}
 
-KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -i 0)"
+KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -P 0)"
 
 echo "Generated key: ${KEYNAME}"
 
 echo "Setting owner on generated key"
-chmod 644 "$KEYDIR/$KEYNAME*.key"
-chmod 640 "$KEYDIR/$KEYNAME*.private"*
-chown "{{ salt['pillar.get']('bind:config:user', map.user) }}:{{ salt['pillar.get']('bind:config:group', map.group) }}" "$KEYDIR/$KEYNAME.*"
+chmod 644 "$KEYDIR/$KEYNAME.key"
+chmod 640 "$KEYDIR/$KEYNAME.private"
+chown "{{ salt['pillar.get']('bind:config:user', map.user) }}:{{ salt['pillar.get']('bind:config:group', map.group) }}" $KEYDIR/$KEYNAME.*
