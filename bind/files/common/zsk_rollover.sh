@@ -8,7 +8,6 @@ KEYDIR="{{ map.key_directory }}"
 ZONE="$1"
 INACTIVE="$2"
 DELETE="$3"
-PREPUBLISH=
 
 if [ $# -eq 0 ]
 then
@@ -52,7 +51,7 @@ echo "Found key: $ACTIVEKEY"
 
 {%- set keygen_options = '-r ' + salt['pillar.get']("bind:config:keygen_options:randomdev","/dev/random") %}
 
-KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -P 0)"
+KEYNAME="$(/usr/sbin/dnssec-keygen {{ keygen_options }} -K $KEYDIR -S $ACTIVEKEY -i $INACTIVE)"
 
 echo "Generated key: ${KEYNAME}"
 
